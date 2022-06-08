@@ -1,0 +1,7 @@
+<launch>
+<node name="ui_uavs" pkg="ui_uavs" type="ui_uavs_node" output="screen">
+    <param name="NetworkMsgSubName" value="/Server1/Message_From_Cloud" />
+    <param name="NetworkMsgPubName" value="/Server1/Message_To_Cloud"/>
+
+</node>
+</launch>
