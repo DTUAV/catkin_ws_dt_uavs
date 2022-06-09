@@ -1165,6 +1165,19 @@
                            <item>
                             <layout class="QHBoxLayout" name="horizontalLayout_10">
                              <item>
+                              <widget class="QPushButton" name="pb_is_stop">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="text">
+                                <string>IsStop</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
                               <widget class="QPushButton" name="pb_is_start">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">

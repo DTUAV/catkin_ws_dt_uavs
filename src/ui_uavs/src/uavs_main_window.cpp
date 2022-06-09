@@ -6,6 +6,7 @@ uavs_main_window::uavs_main_window(QWidget *parent) :
   ui(new Ui::uavs_main_window)
 {
   ui->setupUi(this);
+  uav_info_class_ptr = make_shared<UAVInfoClass>(all_info);
   m_nTimerID = this->startTimer(500);//500ms
   ros::NodeHandle n("~");
   std::string networkMsgSubName = "/Server1/Message_From_Cloud";
@@ -15,6 +16,8 @@ uavs_main_window::uavs_main_window(QWidget *parent) :
 
   _networkMsgSub = n.subscribe(networkMsgSubName,1,&uavs_main_window::network_msg_sub_cb,this);
   _networkMsgPub = n.advertise<dt_message_package::CloudMessage>(networkMsgPubName,1);
+
+
 
 
 
@@ -34,14 +37,74 @@ std::string uavs_main_window::packVector3(double x, double y, double z)
 
 void uavs_main_window::resetAllFlightMode()
 {
-  QPalette pe;
-  pe.setColor(QPalette::WindowText,Qt::white);
-  ui->manual->setPalette(pe);
-  ui->stabilizing->setPalette(pe);
-  ui->altitude->setPalette(pe);
-  ui->position->setPalette(pe);
-  ui->offboard->setPalette(pe);
-  ui->return_2->setPalette(pe);
+  QPalette palette;
+  palette.setColor(QPalette::Background, Qt::white);
+  ui->manual->setAutoFillBackground(true);
+  ui->manual->setPalette(palette);
+
+  ui->stabilizing->setAutoFillBackground(true);
+  ui->stabilizing->setPalette(palette);
+
+  ui->altitude->setAutoFillBackground(true);
+  ui->altitude->setPalette(palette);
+
+  ui->position->setAutoFillBackground(true);
+  ui->position->setPalette(palette);
+
+  ui->offboard->setAutoFillBackground(true);
+  ui->offboard->setPalette(palette);
+
+  ui->return_2->setAutoFillBackground(true);
+  ui->return_2->setPalette(palette);
+}
+
+void uavs_main_window::resetAllSelectBt()
+{
+  ui->pb_uav1->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav2->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav3->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav4->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav5->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav6->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav7->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav8->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav9->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uav10->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_uavall->setStyleSheet("background-color: rgb(255,255,255)");
+  /*
+  QPalette palette;
+  palette.setColor(QPalette::Background, Qt::white);
+
+  ui->pb_uav1->setAutoFillBackground(true);
+  ui->pb_uav1->setPalette(palette);
+
+  ui->pb_uav2->setAutoFillBackground(true);
+  ui->pb_uav2->setPalette(palette);
+
+  ui->pb_uav3->setAutoFillBackground(true);
+  ui->pb_uav3->setPalette(palette);
+
+  ui->pb_uav4->setAutoFillBackground(true);
+  ui->pb_uav4->setPalette(palette);
+
+  ui->pb_uav5->setAutoFillBackground(true);
+  ui->pb_uav5->setPalette(palette);
+
+  ui->pb_uav6->setAutoFillBackground(true);
+  ui->pb_uav6->setPalette(palette);
+
+  ui->pb_uav7->setAutoFillBackground(true);
+  ui->pb_uav7->setPalette(palette);
+
+  ui->pb_uav8->setAutoFillBackground(true);
+  ui->pb_uav8->setPalette(palette);
+
+  ui->pb_uav9->setAutoFillBackground(true);
+  ui->pb_uav9->setPalette(palette);
+
+  ui->pb_uav10->setAutoFillBackground(true);
+  ui->pb_uav10->setPalette(palette);
+  */
 }
 
 void uavs_main_window::updateUi(const UavInfo &info)
@@ -55,26 +118,27 @@ void uavs_main_window::updateUi(const UavInfo &info)
   ui->att->setText(QString::fromLocal8Bit(packVector3(roll,pitch,yaw).data()));
   ui->att_rate->setText(QString::fromLocal8Bit(packVector3(info.AVelX,info.AVelY,info.AVelZ).data()));
   resetAllFlightMode();
-  QPalette pe;
-  pe.setColor(QPalette::WindowText,Qt::green);
+  QPalette palette;
+  palette.setColor(QPalette::Background, Qt::green);
+
   switch (info.FMode) {
   case 0:
-    ui->manual->setPalette(pe);
+    ui->manual->setPalette(palette);
     break;
   case 1:
-    ui->stabilizing->setPalette(pe);
+    ui->stabilizing->setPalette(palette);
     break;
   case 2:
-    ui->altitude->setPalette(pe);
+    ui->altitude->setPalette(palette);
     break;
   case 3:
-    ui->position->setPalette(pe);
+    ui->position->setPalette(palette);
     break;
   case 4:
-    ui->offboard->setPalette(pe);
+    ui->offboard->setPalette(palette);
     break;
   case 5:
-    ui->return_2->setPalette(pe);
+    ui->return_2->setPalette(palette);
     break;
   default:
     break;
@@ -89,60 +153,68 @@ void uavs_main_window::updateUi(const UavInfo &info)
    */
   if(info.NetPx4)
   {
-    pe.setColor(QPalette::WindowText,Qt::green);
-    ui->is_connect->setPalette(pe);
+    palette.setColor(QPalette::Background, Qt::green);
+    ui->is_connect->setPalette(palette);
   }
   else
   {
-    pe.setColor(QPalette::WindowText,Qt::white);
-    ui->is_connect->setPalette(pe);
+    palette.setColor(QPalette::Background,Qt::white);
+    ui->is_connect->setPalette(palette);
   }
   if(info.IsArm)
   {
-    pe.setColor(QPalette::WindowText,Qt::green);
-    ui->is_arm->setPalette(pe);
+    palette.setColor(QPalette::Background,Qt::green);
+    ui->is_arm->setPalette(palette);
   }
   else
   {
-    pe.setColor(QPalette::WindowText,Qt::white);
-    ui->is_arm->setPalette(pe);
+    palette.setColor(QPalette::Background,Qt::white);
+    ui->is_arm->setPalette(palette);
   }
   ui->voltage->setText(QString::fromLocal8Bit(std::to_string(info.Voltage).data()));
   ui->remaining->setText(QString::fromLocal8Bit(std::to_string(info.Remaining).data()));
+
+  ui->pb_is_arm->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_is_offboard_mode->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_is_position_mode->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_is_start->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_target_pos_ok->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_target_vel_ok->setStyleSheet("background-color: rgb(255,255,255)");
+  ui->pb_is_stop->setStyleSheet("background-color: rgb(255,255,255)");
 }
 
 void uavs_main_window::ui_update_timeout()
 {
   switch (_objectID) {
   case 1:
-    updateUi(_uav1Info);
+    updateUi(all_info._uav1Info);
     break;
   case 2:
-    updateUi(_uav2Info);
+    updateUi(all_info._uav2Info);
     break;
   case 3:
-    updateUi(_uav3Info);
+    updateUi(all_info._uav3Info);
     break;
   case 4:
-    updateUi(_uav4Info);
+    updateUi(all_info._uav4Info);
     break;
   case 5:
-    updateUi(_uav5Info);
+    updateUi(all_info._uav5Info);
     break;
   case 6:
-    updateUi(_uav6Info);
+    updateUi(all_info._uav6Info);
     break;
   case 7:
-    updateUi(_uav7Info);
+    updateUi(all_info._uav7Info);
     break;
   case 8:
-    updateUi(_uav8Info);
+    updateUi(all_info._uav8Info);
     break;
   case 9:
-    updateUi(_uav9Info);
+    updateUi(all_info._uav9Info);
     break;
   case 10:
-    updateUi(_uav10Info);
+    updateUi(all_info._uav10Info);
     break;
   default:
     break;
@@ -167,52 +239,52 @@ void uavs_main_window::network_msg_sub_cb(const dt_message_package::CloudMessage
       switch (msg.get()->SourceID) {
       case 1:
       {
-        _uav1Info = uavInfoMsg;
+        all_info._uav1Info = uavInfoMsg;
       }
         break;
       case 2:
       {
-        _uav2Info = uavInfoMsg;
+        all_info._uav2Info = uavInfoMsg;
       }
         break;
       case 3:
       {
-        _uav3Info = uavInfoMsg;
+        all_info._uav3Info = uavInfoMsg;
       }
         break;
       case 4:
       {
-        _uav4Info = uavInfoMsg;
+        all_info._uav4Info = uavInfoMsg;
       }
         break;
       case 5:
       {
-        _uav5Info = uavInfoMsg;
+        all_info._uav5Info = uavInfoMsg;
       }
         break;
       case 6:
       {
-        _uav6Info = uavInfoMsg;
+        all_info._uav6Info = uavInfoMsg;
       }
         break;
       case 7:
       {
-        _uav7Info = uavInfoMsg;
+        all_info._uav7Info = uavInfoMsg;
       }
         break;
       case 8:
       {
-        _uav8Info = uavInfoMsg;
+        all_info._uav8Info = uavInfoMsg;
       }
         break;
       case 9:
       {
-        _uav9Info = uavInfoMsg;
+        all_info._uav9Info = uavInfoMsg;
       }
         break;
       case 10:
       {
-        _uav10Info = uavInfoMsg;
+        all_info._uav10Info = uavInfoMsg;
       }
         break;
       default:
@@ -229,84 +301,286 @@ void uavs_main_window::network_msg_sub_cb(const dt_message_package::CloudMessage
 void uavs_main_window::on_pb_uav1_clicked()
 {
   _objectID = 1;
+  resetAllSelectBt();
+  /*
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav1->setPalette(pe);
+  */
+  ui->pb_uav1->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav2_clicked()
 {
   _objectID = 2;
+  resetAllSelectBt();
+  /*
+  _objectID = 2;
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav2->setPalette(pe);
+  */
+  ui->pb_uav2->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav3_clicked()
 {
   _objectID = 3;
+  resetAllSelectBt();
+  /*
+  _objectID = 3;
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav3->setPalette(pe);
+  */
+  ui->pb_uav3->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav4_clicked()
 {
   _objectID = 4;
+  resetAllSelectBt();
+  /*
+  _objectID = 4;
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav4->setPalette(pe);
+  */
+  ui->pb_uav4->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav5_clicked()
 {
   _objectID = 5;
+  resetAllSelectBt();
+  /*
+  _objectID = 5;
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav5->setPalette(pe);
+  */
+  ui->pb_uav5->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav6_clicked()
 {
   _objectID = 6;
+  resetAllSelectBt();
+  /*
+  _objectID = 6;
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav6->setPalette(pe);
+  */
+  ui->pb_uav6->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav7_clicked()
 {
   _objectID = 7;
+  resetAllSelectBt();
+  /*
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav7->setPalette(pe);
+  */
+  ui->pb_uav7->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav8_clicked()
 {
+  resetAllSelectBt();
   _objectID = 8;
+  /*
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav8->setPalette(pe);
+  */
+  ui->pb_uav8->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav9_clicked()
 {
+  resetAllSelectBt();
   _objectID = 9;
+  /*
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav9->setPalette(pe);
+  */
+  ui->pb_uav9->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uav10_clicked()
 {
+  resetAllSelectBt();
   _objectID = 10;
+  /*
+  QPalette pe;
+  pe.setColor(QPalette::Background,Qt::green);
+  resetAllSelectBt();
+  ui->pb_uav10->setPalette(pe);
+  */
+  ui->pb_uav10->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_uavall_clicked()
 {
-
+  resetAllSelectBt();
+  ui->pb_uavall->setStyleSheet("background-color: rgb(0,255,0)");
+  all_uavs_windows* all_uavs_ui = new all_uavs_windows;
+  all_uavs_ui->info_ptr = uav_info_class_ptr;
+     all_uavs_ui->show();
 }
 
 void uavs_main_window::on_pb_is_start_clicked()
 {
+  ui->pb_is_start->setStyleSheet("background-color: rgb(0,255,0)");
+  UavCommand commandMsg;
+  /*
+   * 1:IsOffboard
+   * 2:IsArm
+   * 4:IsStart
+   * 3:IsOffboard+IsArm
+   * 5:IsOffboard+IsStart
+   * 6:IsArm+IsStart
+   * 7:IsOffboard+IsArm+IsStart
+  */
+  commandMsg.ComMode = 4;
+  commandMsg.IsStart = true;
+  dt_message_package::CloudMessage pubMsg;
+  pubMsg.TimeStamp = ros::Time::now().toNSec();
+  pubMsg.SourceID = Gloal_Server_0;
+  pubMsg.TargetID = _objectID;
+  pubMsg.MessageID = UavCommandID;
+  pubMsg.MessageData = x2struct::X::tojson(commandMsg);
+  _networkMsgPub.publish(pubMsg);
 
 }
 
 void uavs_main_window::on_pb_is_arm_clicked()
 {
+ui->pb_is_arm->setStyleSheet("background-color: rgb(0,255,0)");
+UavCommand commandMsg;
+/*
+ * 1:IsOffboard
+ * 2:IsArm
+ * 4:IsStart
+ * 3:IsOffboard+IsArm
+ * 5:IsOffboard+IsStart
+ * 6:IsArm+IsStart
+ * 7:IsOffboard+IsArm+IsStart
+*/
+commandMsg.ComMode = 2;
+commandMsg.IsArm = true;
+dt_message_package::CloudMessage pubMsg;
+pubMsg.TimeStamp = ros::Time::now().toNSec();
+pubMsg.SourceID = Gloal_Server_0;
+pubMsg.TargetID = _objectID;
+pubMsg.MessageID = UavCommandID;
+pubMsg.MessageData = x2struct::X::tojson(commandMsg);
+_networkMsgPub.publish(pubMsg);
 
 }
 
 void uavs_main_window::on_pb_is_position_mode_clicked()
 {
-
+ui->pb_is_position_mode->setStyleSheet("background-color: rgb(0,255,0)");
 }
 
 void uavs_main_window::on_pb_is_offboard_mode_clicked()
 {
-
+ui->pb_is_offboard_mode->setStyleSheet("background-color: rgb(0,255,0)");
+UavCommand commandMsg;
+/*
+ * 1:IsOffboard
+ * 2:IsArm
+ * 4:IsStart
+ * 3:IsOffboard+IsArm
+ * 5:IsOffboard+IsStart
+ * 6:IsArm+IsStart
+ * 7:IsOffboard+IsArm+IsStart
+*/
+commandMsg.ComMode = 1;
+commandMsg.IsOffboard = true;
+dt_message_package::CloudMessage pubMsg;
+pubMsg.TimeStamp = ros::Time::now().toNSec();
+pubMsg.SourceID = Gloal_Server_0;
+pubMsg.TargetID = _objectID;
+pubMsg.MessageID = UavCommandID;
+pubMsg.MessageData = x2struct::X::tojson(commandMsg);
+_networkMsgPub.publish(pubMsg);
 }
 
 void uavs_main_window::on_pb_target_pos_ok_clicked()
 {
-
+ui->pb_target_pos_ok->setStyleSheet("background-color: rgb(0,255,0)");
+UavControl controlMsg;
+controlMsg.Mode = 0;
+controlMsg.ComLX = ui->target_pos_x->text().toDouble();
+controlMsg.ComLY = ui->target_pos_y->text().toDouble();
+controlMsg.ComLZ = ui->target_pos_z->text().toDouble();
+controlMsg.ComAX = 0;
+controlMsg.ComAY = 0;
+controlMsg.ComAZ = ui->target_yaw->text().toDouble();;
+dt_message_package::CloudMessage pubMsg;
+pubMsg.TimeStamp = ros::Time::now().toNSec();
+pubMsg.SourceID = Gloal_Server_0;
+pubMsg.TargetID = _objectID;
+pubMsg.MessageID = UavControlID;
+pubMsg.MessageData = x2struct::X::tojson(controlMsg);
+_networkMsgPub.publish(pubMsg);
 }
 
 void uavs_main_window::on_pb_target_vel_ok_clicked()
 {
+ui->pb_target_vel_ok->setStyleSheet("background-color: rgb(0,255,0)");
+UavControl controlMsg;
+controlMsg.Mode = 1;
+controlMsg.ComLX = ui->target_vel_x->text().toDouble();
+controlMsg.ComLY = ui->target_vel_y->text().toDouble();
+controlMsg.ComLZ = ui->target_vel_z->text().toDouble();
+controlMsg.ComAX = 0;
+controlMsg.ComAY = 0;
+controlMsg.ComAZ = ui->target_vel_yaw->text().toDouble();
+dt_message_package::CloudMessage pubMsg;
+pubMsg.TimeStamp = ros::Time::now().toNSec();
+pubMsg.SourceID = Gloal_Server_0;
+pubMsg.TargetID = _objectID;
+pubMsg.MessageID = UavControlID;
+pubMsg.MessageData = x2struct::X::tojson(controlMsg);
+_networkMsgPub.publish(pubMsg);
+}
 
+void uavs_main_window::on_pb_is_stop_clicked()
+{
+    ui->pb_is_stop->setStyleSheet("background-color: rgb(0,255,0)");
+    UavCommand commandMsg;
+    /*
+     * 1:IsOffboard
+     * 2:IsArm
+     * 4:IsStart
+     * 3:IsOffboard+IsArm
+     * 5:IsOffboard+IsStart
+     * 6:IsArm+IsStart
+     * 7:IsOffboard+IsArm+IsStart
+    */
+    commandMsg.ComMode = 4;
+    commandMsg.IsStart = false;
+    dt_message_package::CloudMessage pubMsg;
+    pubMsg.TimeStamp = ros::Time::now().toNSec();
+    pubMsg.SourceID = Gloal_Server_0;
+    pubMsg.TargetID = _objectID;
+    pubMsg.MessageID = UavCommandID;
+    pubMsg.MessageData = x2struct::X::tojson(commandMsg);
+    _networkMsgPub.publish(pubMsg);
 }
