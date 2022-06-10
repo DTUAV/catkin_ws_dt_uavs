@@ -195,32 +195,38 @@ void uavs_main_window::updateUi(const UavInfo &info)
   if(info.NetPx4)
   {
     palette.setColor(QPalette::Background, Qt::green);
+    ui->is_connect->setAutoFillBackground(true);
     ui->is_connect->setPalette(palette);
   }
   else
   {
     palette.setColor(QPalette::Background,Qt::white);
+    ui->is_connect->setAutoFillBackground(true);
     ui->is_connect->setPalette(palette);
   }
   if(info.IsArm)
   {
     palette.setColor(QPalette::Background,Qt::green);
+    ui->is_arm->setAutoFillBackground(true);
     ui->is_arm->setPalette(palette);
   }
   else
   {
     palette.setColor(QPalette::Background,Qt::white);
+    ui->is_arm->setAutoFillBackground(true);
     ui->is_arm->setPalette(palette);
   }
 
   if(info.IsStart)
   {
     palette.setColor(QPalette::Background,Qt::green);
+    ui->is_start->setAutoFillBackground(true);
     ui->is_start->setPalette(palette);
   }
   else
   {
     palette.setColor(QPalette::Background,Qt::white);
+    ui->is_start->setAutoFillBackground(true);
     ui->is_start->setPalette(palette);
   }
 
@@ -243,11 +249,13 @@ void uavs_main_window::ui_update_timeout()
   if(all_info._uavLinkStatus.at(_objectID-1))
   {
     palette.setColor(QPalette::Background, Qt::green);
+    ui->is_link->setAutoFillBackground(true);
     ui->is_link->setPalette(palette);
   }
   else
   {
     palette.setColor(QPalette::Background,Qt::white);
+    ui->is_link->setAutoFillBackground(true);
     ui->is_link->setPalette(palette);
   }
   switch (_objectID) {

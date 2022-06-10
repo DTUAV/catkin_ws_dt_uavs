@@ -56,11 +56,13 @@ void all_uavs_windows::updateStatue(bool status, QLabel *qlb)
   if(status)
   {
     palette.setColor(QPalette::Background, Qt::green);
+    qlb->setAutoFillBackground(true);
     qlb->setPalette(palette);
   }
   else
   {
     palette.setColor(QPalette::Background,Qt::white);
+    qlb->setAutoFillBackground(true);
     qlb->setPalette(palette);
   }
 }

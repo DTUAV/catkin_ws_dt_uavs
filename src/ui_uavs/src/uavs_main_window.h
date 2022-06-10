@@ -141,7 +141,7 @@ public:
     _uav6Info.RotY = 0;
     _uav6Info.RotZ = 0;
     _uav6Info.RotW = 1;
-    _uav5Info.IsStart = false;
+    _uav6Info.IsStart = false;
 
 
     _uav7Info.AVelX = 0;
@@ -204,7 +204,7 @@ public:
     _uav9Info.RotY = 0;
     _uav9Info.RotZ = 0;
     _uav9Info.RotW = 1;
-    _uav8Info.IsStart = false;
+    _uav9Info.IsStart = false;
 
     _uav10Info.AVelX = 0;
     _uav10Info.AVelY = 0;
