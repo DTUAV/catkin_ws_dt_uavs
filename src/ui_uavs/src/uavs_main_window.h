@@ -12,6 +12,9 @@
 #include "all_uavs_windows.h"
 #include "ui_uavs_main_window.h"
 #include "memory"
+#include <pthread.h>
+#include <mutex>
+#include <vector>
 using namespace DTUAV;
 class UAVInfoClass
 {
@@ -36,6 +39,7 @@ public:
     _uav1Info.RotY = 0;
     _uav1Info.RotZ = 0;
     _uav1Info.RotW = 1;
+    _uav1Info.IsStart = false;
 
     _uav2Info.AVelX = 0;
     _uav2Info.AVelY = 0;
@@ -55,6 +59,7 @@ public:
     _uav2Info.RotY = 0;
     _uav2Info.RotZ = 0;
     _uav2Info.RotW = 1;
+    _uav2Info.IsStart = false;
 
     _uav3Info.AVelX = 0;
     _uav3Info.AVelY = 0;
@@ -74,6 +79,7 @@ public:
     _uav3Info.RotY = 0;
     _uav3Info.RotZ = 0;
     _uav3Info.RotW = 1;
+    _uav3Info.IsStart = false;
 
     _uav4Info.AVelX = 0;
     _uav4Info.AVelY = 0;
@@ -93,6 +99,7 @@ public:
     _uav4Info.RotY = 0;
     _uav4Info.RotZ = 0;
     _uav4Info.RotW = 1;
+    _uav4Info.IsStart = false;
 
 
     _uav5Info.AVelX = 0;
@@ -113,6 +120,7 @@ public:
     _uav5Info.RotY = 0;
     _uav5Info.RotZ = 0;
     _uav5Info.RotW = 1;
+    _uav5Info.IsStart = false;
 
 
     _uav6Info.AVelX = 0;
@@ -133,6 +141,7 @@ public:
     _uav6Info.RotY = 0;
     _uav6Info.RotZ = 0;
     _uav6Info.RotW = 1;
+    _uav5Info.IsStart = false;
 
 
     _uav7Info.AVelX = 0;
@@ -153,6 +162,7 @@ public:
     _uav7Info.RotY = 0;
     _uav7Info.RotZ = 0;
     _uav7Info.RotW = 1;
+    _uav7Info.IsStart = false;
 
 
     _uav8Info.AVelX = 0;
@@ -173,6 +183,7 @@ public:
     _uav8Info.RotY = 0;
     _uav8Info.RotZ = 0;
     _uav8Info.RotW = 1;
+    _uav8Info.IsStart = false;
 
 
     _uav9Info.AVelX = 0;
@@ -193,6 +204,8 @@ public:
     _uav9Info.RotY = 0;
     _uav9Info.RotZ = 0;
     _uav9Info.RotW = 1;
+    _uav8Info.IsStart = false;
+
     _uav10Info.AVelX = 0;
     _uav10Info.AVelY = 0;
     _uav10Info.AVelZ = 0;
@@ -211,6 +224,9 @@ public:
     _uav10Info.RotY = 0;
     _uav10Info.RotZ = 0;
     _uav10Info.RotW = 1;
+    _uav10Info.IsStart = false;
+
+    _uavLinkStatus.resize(10);
   }
   UavInfo _uav1Info;
   UavInfo _uav2Info;
@@ -222,7 +238,7 @@ public:
   UavInfo _uav8Info;
   UavInfo _uav9Info;
   UavInfo _uav10Info;
-
+  std::vector<bool> _uavLinkStatus;
 };
 namespace Ui {
 class uavs_main_window;
@@ -237,8 +253,10 @@ public:
   ~uavs_main_window();
   int m_nTimerID;
   void network_msg_sub_cb(const dt_message_package::CloudMessageConstPtr& msg);
+  static void *run_pub_heart_msg(void *value);
   //friend class all_uavs_windows;
   shared_ptr<UAVInfoClass> uav_info_class_ptr;
+  shared_ptr<ros::Publisher> network_pub_ptr;
   UAVInfoClass all_info;
 
 
@@ -294,7 +312,9 @@ private:
 
   ros::Subscriber _networkMsgSub;
   ros::Publisher _networkMsgPub;
-
+  float _heartMsgHz;
+  pthread_t _heartMsgPubTh;
+  std::mutex m;
   Ui::uavs_main_window *ui;
 };
 

@@ -13,14 +13,55 @@ uavs_main_window::uavs_main_window(QWidget *parent) :
   n.getParam("NetworkMsgSubName",networkMsgSubName);
   std::string networkMsgPubName = "/Server1/Message_To_Cloud";
   n.getParam("NetworkMsgPubName",networkMsgPubName);
+  _heartMsgHz = 0.5;
+  n.getParam("HeartMsgHz",_heartMsgHz);
+  _objectID = 1;
+  _networkMsgSub = n.subscribe(networkMsgSubName,100,&uavs_main_window::network_msg_sub_cb,this);
+  _networkMsgPub = n.advertise<dt_message_package::CloudMessage>(networkMsgPubName,100);
+  network_pub_ptr = make_shared<ros::Publisher>(_networkMsgPub);
+  int flag_thread = pthread_create(&_heartMsgPubTh, NULL, &uavs_main_window::run_pub_heart_msg, this);
+    if (flag_thread < 0) {
+      ROS_ERROR("pthread_create ros_process_thread failed: %d\n", flag_thread);
+    }
+}
 
-  _networkMsgSub = n.subscribe(networkMsgSubName,1,&uavs_main_window::network_msg_sub_cb,this);
-  _networkMsgPub = n.advertise<dt_message_package::CloudMessage>(networkMsgPubName,1);
+void* uavs_main_window::run_pub_heart_msg(void *value)
+{
+  uavs_main_window* uavs_win = (uavs_main_window*)(value);
+  ros::Rate rate(uavs_win->_heartMsgHz);
+  HeartMsg hitMsg;
+  hitMsg.is_get = true;
+  dt_message_package::CloudMessage cloudMsg;
+  cloudMsg.SourceID = Gloal_Server_0;
+  cloudMsg.MessageID = HeartMsgID;
+  cloudMsg.MessageData = x2struct::X::tojson(hitMsg);
+  while(ros::ok())
+  {
+    cloudMsg.TimeStamp = ros::Time::now().toNSec();
+    {
+      std::lock_guard<mutex> guard(uavs_win->m);
+      uavs_win->all_info._uav1Info.IsStart = false;
+      uavs_win->all_info._uav2Info.IsStart = false;
+      uavs_win->all_info._uav3Info.IsStart = false;
+      uavs_win->all_info._uav4Info.IsStart = false;
+      uavs_win->all_info._uav5Info.IsStart = false;
+      uavs_win->all_info._uav6Info.IsStart = false;
+      uavs_win->all_info._uav7Info.IsStart = false;
+      uavs_win->all_info._uav8Info.IsStart = false;
+      uavs_win->all_info._uav9Info.IsStart = false;
+      uavs_win->all_info._uav10Info.IsStart = false;
 
+      for(int i=1;i<=10;++i)
+        uavs_win->all_info._uavLinkStatus.at(i-1) = false;
 
-
-
-
+    }
+    for(int i=1;i<=10;++i)
+    {
+      cloudMsg.TargetID = i;
+      uavs_win->_networkMsgPub.publish(cloudMsg);
+    }
+    rate.sleep();
+  }
 }
 
 void uavs_main_window::timerEvent(QTimerEvent *event)
@@ -171,6 +212,18 @@ void uavs_main_window::updateUi(const UavInfo &info)
     palette.setColor(QPalette::Background,Qt::white);
     ui->is_arm->setPalette(palette);
   }
+
+  if(info.IsStart)
+  {
+    palette.setColor(QPalette::Background,Qt::green);
+    ui->is_start->setPalette(palette);
+  }
+  else
+  {
+    palette.setColor(QPalette::Background,Qt::white);
+    ui->is_start->setPalette(palette);
+  }
+
   ui->voltage->setText(QString::fromLocal8Bit(std::to_string(info.Voltage).data()));
   ui->remaining->setText(QString::fromLocal8Bit(std::to_string(info.Remaining).data()));
 
@@ -185,6 +238,18 @@ void uavs_main_window::updateUi(const UavInfo &info)
 
 void uavs_main_window::ui_update_timeout()
 {
+  QPalette palette;
+  palette.setColor(QPalette::Background, Qt::green);
+  if(all_info._uavLinkStatus.at(_objectID-1))
+  {
+    palette.setColor(QPalette::Background, Qt::green);
+    ui->is_link->setPalette(palette);
+  }
+  else
+  {
+    palette.setColor(QPalette::Background,Qt::white);
+    ui->is_link->setPalette(palette);
+  }
   switch (_objectID) {
   case 1:
     updateUi(all_info._uav1Info);
@@ -236,54 +301,65 @@ void uavs_main_window::network_msg_sub_cb(const dt_message_package::CloudMessage
     bool isLoad = x2struct::X::loadjson(msg.get()->MessageData,uavInfoMsg,false);
     if(isLoad)
     {
+      all_info._uavLinkStatus.at(msg.get()->SourceID-1) = true;
       switch (msg.get()->SourceID) {
       case 1:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav1Info = uavInfoMsg;
       }
         break;
       case 2:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav2Info = uavInfoMsg;
       }
         break;
       case 3:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav3Info = uavInfoMsg;
       }
         break;
       case 4:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav4Info = uavInfoMsg;
       }
         break;
       case 5:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav5Info = uavInfoMsg;
       }
         break;
       case 6:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav6Info = uavInfoMsg;
       }
         break;
       case 7:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav7Info = uavInfoMsg;
       }
         break;
       case 8:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav8Info = uavInfoMsg;
       }
         break;
       case 9:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav9Info = uavInfoMsg;
       }
         break;
       case 10:
       {
+        std::lock_guard<mutex> guard(m);
         all_info._uav10Info = uavInfoMsg;
       }
         break;
@@ -439,7 +515,8 @@ void uavs_main_window::on_pb_uavall_clicked()
   ui->pb_uavall->setStyleSheet("background-color: rgb(0,255,0)");
   all_uavs_windows* all_uavs_ui = new all_uavs_windows;
   all_uavs_ui->info_ptr = uav_info_class_ptr;
-     all_uavs_ui->show();
+  all_uavs_ui->network_pub_ptr = network_pub_ptr;
+  all_uavs_ui->show();
 }
 
 void uavs_main_window::on_pb_is_start_clicked()

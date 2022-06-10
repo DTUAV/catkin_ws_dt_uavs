@@ -159,23 +159,88 @@ dt_message_wrapper::dt_message_wrapper()
   }
   std::cout<<"message_wrapper--IsAllUpdate: "<<_isAllUpdate<<std::endl;
 
+  _heartMsgHz = 0.5;
+  if(!n.getParam("HeartMessagePubHz",_heartMsgHz))
+  {
+    std::cout<<"message_wrapper--HeartMessagePubHz No Configure"<<std::endl;
+  }
+  std::cout<<"message_wrapper--HeartMessagePubHz: "<<_heartMsgHz<<std::endl;
+
+  std::string NetworkStateMsgPubTopic ="/Network/State";
+  if(!n.getParam("NetworkStateMsgPubTopic",NetworkStateMsgPubTopic))
+  {
+    std::cout<<"message_wrapper--NetworkStateMsgPubTopic No Configure"<<std::endl;
+  }
+  std::cout<<"message_wrapper--NetworkStateMsgPubTopic: "<<NetworkStateMsgPubTopic<<std::endl;
+
+
   _cloud_msg_pub= n.advertise<dt_message_package::CloudMessage>(CloudMsgPubTopic,20);
-  _target_pos_pub = n.advertise<geometry_msgs::PoseStamped>(TargetPosPubTopic,1);
-  _target_vel_pub = n.advertise<geometry_msgs::TwistStamped>(TargetVelPubTopic,1);
-  _arm_com_pub = n.advertise<std_msgs::Bool>(ArmComPubTopic,1);
-  _target_fmode_pub = n.advertise<std_msgs::Int8>(TargetFModePubTopic,1);
-  _vr_control_pub = n.advertise<std_msgs::Bool>(VRControlPubTopic,1);
-  _computer_cmd_pub = n.advertise<std_msgs::Bool>(ComputerCmdPubTopic,1);
-  _apply_cam_pub = n.advertise<std_msgs::Bool>(ApplyCamPubTopic,1);
-  _other_uavs_state_pub = n.advertise<dt_message_package::uavs_pose_vel>(OtherUavStateMsgPubTopic,1);
+  _target_pos_pub = n.advertise<geometry_msgs::PoseStamped>(TargetPosPubTopic,10);
+  _target_vel_pub = n.advertise<geometry_msgs::TwistStamped>(TargetVelPubTopic,10);
+  _arm_com_pub = n.advertise<std_msgs::Bool>(ArmComPubTopic,10);
+  _target_fmode_pub = n.advertise<std_msgs::Int8>(TargetFModePubTopic,10);
+  _vr_control_pub = n.advertise<std_msgs::Bool>(VRControlPubTopic,10);
+  _computer_cmd_pub = n.advertise<std_msgs::Bool>(ComputerCmdPubTopic,10);
+  _apply_cam_pub = n.advertise<std_msgs::Bool>(ApplyCamPubTopic,10);
+  _other_uavs_state_pub = n.advertise<dt_message_package::uavs_pose_vel>(OtherUavStateMsgPubTopic,50);
+  _network_state_pub = n.advertise<dt_message_package::NetworkStateMsg>(NetworkStateMsgPubTopic,10);
+
   _otherUavsState.resize(_uavNum);
+  _isLinkUavs.resize(_uavNum);
+  _isLinkUavs.at(_sourceID-1) = true;
   _numStateUpdate = 0;
   _isFirstSend = true;
+  _isStart = false;
+  _isLinkServer = false;
 
   int flag_thread = pthread_create(&_runThread,NULL,&dt_message_wrapper::run,this);
   if (flag_thread < 0) {
     ROS_ERROR("message_wrapper--pthread_create ros_process_thread failed: %d\n", flag_thread);
   }
+
+  flag_thread = pthread_create(&_runPubHeartTh,NULL,&dt_message_wrapper::run_pub_heart_msg,this);
+  if (flag_thread < 0) {
+    ROS_ERROR("message_wrapper--pthread_create heart_publish_message_thread failed: %d\n", flag_thread);
+  }
+}
+
+void *dt_message_wrapper::run_pub_heart_msg(void *args)
+{
+  dt_message_wrapper* dtvrPtr = (dt_message_wrapper*)(args);
+  ros::Rate rate(dtvrPtr->_heartMsgHz);
+  dt_message_package::CloudMessage pubMsg;
+  pubMsg.SourceID = dtvrPtr->_sourceID;
+  pubMsg.TargetID = dtvrPtr->_targetID;
+  pubMsg.MessageID = HeartMsgID;
+  HeartMsg hit;
+  hit.is_get = true;
+  pubMsg.MessageData = x2struct::X::tojson(hit);
+
+  dt_message_package::NetworkStateMsg networkStateMsg;
+  networkStateMsg.uavs.resize(dtvrPtr->_uavNum);
+  while(ros::ok())
+  {
+    pubMsg.TimeStamp = ros::Time::now().toNSec();
+    dtvrPtr->_cloud_msg_pub.publish(pubMsg);
+
+    networkStateMsg.header.stamp = ros::Time::now();
+    networkStateMsg.isServer = dtvrPtr->_isLinkServer;
+    for(int i=0;i<dtvrPtr->_uavNum;i++)
+    {
+      networkStateMsg.uavs.at(i) = dtvrPtr->_isLinkUavs.at(i);
+    }
+    dtvrPtr->_network_state_pub.publish(networkStateMsg);
+    {
+      std::lock_guard<mutex> guard(dtvrPtr->m);
+      for(int i=0;i<dtvrPtr->_uavNum;i++)
+      {
+        if(i!=dtvrPtr->_dtObjectID-1)
+          dtvrPtr->_isLinkUavs.at(i) = false;
+      }
+    }
+    rate.sleep();
+  }
+  pthread_join(dtvrPtr->_runPubHeartTh,NULL);
 }
 
 void *dt_message_wrapper::run(void *args)
@@ -210,6 +275,7 @@ void *dt_message_wrapper::run(void *args)
       info.RotY = dtvrPtr->_rotY;
       info.RotZ = dtvrPtr->_rotZ;
       info.Voltage = dtvrPtr->_voltage;
+      info.IsStart = dtvrPtr->_isStart;
     }
     pubMsg.MessageData = x2struct::X::tojson(info);
     dtvrPtr->_cloud_msg_pub.publish(pubMsg);
@@ -365,6 +431,7 @@ void dt_message_wrapper::cloud_msg_cb(const dt_message_package::CloudMessageCons
       {
         std_msgs::Bool startMsg;
         startMsg.data = uavCommandMsg.IsStart;
+        _isStart = uavCommandMsg.IsStart;
         _vr_control_pub.publish(startMsg);
       }
       else if(uavCommandMsg.ComMode == 5)
@@ -459,7 +526,7 @@ void dt_message_wrapper::cloud_msg_cb(const dt_message_package::CloudMessageCons
       _otherUavsState.at(index).vel_x = uavInfoMsg.LVelX;
       _otherUavsState.at(index).vel_y = uavInfoMsg.LVelY;
       _otherUavsState.at(index).vel_z = uavInfoMsg.LVelZ;
-
+      _isLinkUavs.at(index) = true;
       _updatedUavsId.insert(msg.get()->SourceID);
     }
 
@@ -540,6 +607,10 @@ void dt_message_wrapper::cloud_msg_cb(const dt_message_package::CloudMessageCons
         _other_uavs_state_pub.publish(uavsPosVelMsg);
       }
     }
+  }
+    break;
+  case HeartMsgID:
+  {
   }
     break;
   default:

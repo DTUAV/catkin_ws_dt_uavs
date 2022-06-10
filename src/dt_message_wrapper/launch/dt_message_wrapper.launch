@@ -22,8 +22,10 @@
       <param name="ComputerCmdMessagePubTopic" value="/R_UAV_0/Computer/Cmd"/>
       <param name="ApplyCameraMessagePubTopic" value="/R_UAV_0/Apply/Camera"/>
       <param name="OtherUavStateMsgPubTopic" value="/OtherUavs/State"/>
+      <param name="NetworkStateMsgPubTopic" value="/Network/State"/>
       <param name="UavNum" value="10"/>  <!--The number of UAV-->
       <param name="IsAllUpdate" value="false"/> <!--Is update message if only one UAV information can be obtained-->
+      <param name="HeartMessagePubHz" value="0.1"/>
 
 </node>
 </launch>

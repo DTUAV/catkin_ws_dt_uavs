@@ -2,6 +2,6 @@
 <node name="ui_uavs" pkg="ui_uavs" type="ui_uavs_node" output="screen">
     <param name="NetworkMsgSubName" value="/Server1/Message_From_Cloud" />
     <param name="NetworkMsgPubName" value="/Server1/Message_To_Cloud"/>
-
+    <param name="HeartMsgHz" value="0.1"/>
 </node>
 </launch>

@@ -127,6 +127,20 @@ struct ControlApplyMsg
   XTOSTRUCT(O(apply_info));
 };
 
+#define HeartMsgID 605
+struct HeartMsg
+{
+  bool is_get;
+  XTOSTRUCT(O(is_get));
+};
+
+#define UavStartID 604
+struct UavStart
+{
+  bool is_start;
+  XTOSTRUCT(O(is_start));
+};
+
 
 #define UavCommandID 603
 struct UavCommand
@@ -196,7 +210,8 @@ struct UavInfo
   int FMode;//the flight mode of UAV:
   float Voltage;//the current voltage of UAV
   float Remaining;//the remaining of battery
-  XTOSTRUCT(O(PosX,PosY,PosZ,RotX,RotY,RotZ,RotW,LVelX,LVelY,LVelZ,AVelX,AVelY,AVelZ,NetPx4,IsArm,FMode,Voltage,Remaining));
+  bool IsStart;//the state of UAV control
+  XTOSTRUCT(O(PosX,PosY,PosZ,RotX,RotY,RotZ,RotW,LVelX,LVelY,LVelZ,AVelX,AVelY,AVelZ,NetPx4,IsArm,FMode,Voltage,Remaining,IsStart));
 };
 
 #define ApplyCameraID 604

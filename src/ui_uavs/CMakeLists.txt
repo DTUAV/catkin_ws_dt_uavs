@@ -17,7 +17,6 @@ include_directories(${catkin_INCLUDE_DIRS})
 # exporting anything. 
 catkin_package()
 
-
 ##############################################################################
 # Qt Environment
 ##############################################################################
@@ -48,7 +47,7 @@ file(GLOB_RECURSE QT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINK
 # Binaries
 ##############################################################################
 
-add_executable(ui_uavs ${QT_SOURCES} ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_HPP})
-target_link_libraries(ui_uavs ${QT_LIBRARIES} ${catkin_LIBRARIES})
-install(TARGETS ui_uavs RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+add_executable(ui_uavs_node ${QT_SOURCES} ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_HPP})
+target_link_libraries(ui_uavs_node ${QT_LIBRARIES} ${catkin_LIBRARIES})
+install(TARGETS ui_uavs_node RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

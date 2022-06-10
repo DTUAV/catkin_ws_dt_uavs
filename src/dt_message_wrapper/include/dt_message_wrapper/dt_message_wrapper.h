@@ -15,6 +15,7 @@
 #include "std_msgs/Int8.h"
 #include <dt_message_package/CloudMessage.h>
 #include <dt_message_package/uavs_pose_vel.h>
+#include <dt_message_package/NetworkStateMsg.h>
 #include "pthread.h"
 #include <mutex>
 #include <tf/tf.h>
@@ -38,6 +39,7 @@ class dt_message_wrapper
 public:
   dt_message_wrapper();
   static void *run(void *args);
+  static void *run_pub_heart_msg(void *args);
   void local_pos_sub_cb(const geometry_msgs::PoseStampedConstPtr& msg);
   void global_pos_sub_cb(const sensor_msgs::NavSatFixConstPtr& msg);
   void battery_info_sub_cb(const sensor_msgs::BatteryStateConstPtr& msg);
@@ -61,6 +63,7 @@ private:
   ros::Publisher _computer_cmd_pub;
   ros::Publisher _apply_cam_pub;
   ros::Publisher _other_uavs_state_pub;
+  ros::Publisher _network_state_pub;
 
   std::unordered_set<int> _updatedUavsId;
   std::vector<UavStateInfo> _otherUavsState;
@@ -69,9 +72,16 @@ private:
   int _uavNum;
   bool _isFirstSend;
 
+  bool _isStart;
+  bool _isLinkServer;
+  std::vector<bool> _isLinkUavs;
+
   int _sourceID;
   int _targetID;
   int _dtObjectID;
+  pthread_t _runPubHeartTh;
+  float _heartMsgHz;
+
   pthread_t _runThread;
   float _msgPubHz;
   std::mutex m;
