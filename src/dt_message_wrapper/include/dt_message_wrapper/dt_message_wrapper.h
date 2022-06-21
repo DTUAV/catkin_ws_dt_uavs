@@ -64,6 +64,7 @@ private:
   ros::Publisher _apply_cam_pub;
   ros::Publisher _other_uavs_state_pub;
   ros::Publisher _network_state_pub;
+  ros::Publisher _target_obj_pos_pub;
 
   std::unordered_set<int> _updatedUavsId;
   std::vector<UavStateInfo> _otherUavsState;
@@ -85,6 +86,14 @@ private:
   pthread_t _runThread;
   float _msgPubHz;
   std::mutex m;
+
+  float _startPosX;
+  float _startPosY;
+  float _startPosZ;
+
+  float _curPosX;
+  float _curPosY;
+  float _curPosZ;
 
   //The Position, Rotation, Linear Velocity, Angular Velocity
   double _latitude;

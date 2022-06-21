@@ -39,7 +39,7 @@
       <param name="ComputerCmdMessagePubTopic" value="/$(arg device_name_rostopic_init)/Computer/Cmd"/>
       <param name="ApplyCameraMessagePubTopic" value="/$(arg device_name_rostopic_init)/Apply/Camera"/>
       <param name="OtherUavStateMsgPubTopic" value="/$(arg device_name_rostopic_init)/OtherUavs/State"/>        <!--All UAVs state-->
-      <param name="UavNum" value="10"/>                                                                        <!--The number of UAV-->
+      <param name="UavNum" value="6"/>                                                                        <!--The number of UAV-->
       <param name="IsAllUpdate" value="true"/>                                                                <!--Is update message if only one UAV information can be obtained-->
 
 </node>

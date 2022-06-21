@@ -19,6 +19,8 @@ namespace DTUAV {
 #define R_UAV_9  9
 #define R_UAV_10  10
 
+#define R_CAR_1 11
+
 //-------------------------->Transfer Packet Format<-----------------------------------------
 struct IotMessage
 {
@@ -219,6 +221,27 @@ struct ApplyCameraMsg
 {
   bool isOpen;
   XTOSTRUCT(O(isOpen));
+};
+
+#define CompressedImageMessageID 109
+struct CompressedImageMessage
+{
+  string format;//jpeg png
+  vector<int> data;
+  XTOSTRUCT(O(format,data));
+};
+
+#define TargetObjectPoseMessageID 606
+struct TargetObjPoseMessage
+{
+  float posX;
+  float posY;
+  float posZ;
+  float rotX;
+  float rotY;
+  float rotZ;
+  float rotW;
+  XTOSTRUCT(O(posX,posY,posZ,rotX,rotY,rotZ,rotW));
 };
 
 }

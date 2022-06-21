@@ -55,6 +55,7 @@ find_package(catkin REQUIRED COMPONENTS
    uavs_pose_vel.msg
    UavInfoMsg.msg
    NetworkStateMsg.msg
+   uav_target.msg
  )
 
 ## Generate services in the 'srv' folder

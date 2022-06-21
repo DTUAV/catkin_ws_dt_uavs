@@ -173,6 +173,31 @@ dt_message_wrapper::dt_message_wrapper()
   }
   std::cout<<"message_wrapper--NetworkStateMsgPubTopic: "<<NetworkStateMsgPubTopic<<std::endl;
 
+  if(!n.getParam("StartPositionX",_startPosX))
+  {
+    std::cout<<"message_wrapper--StartPositionX No Configure"<<std::endl;
+  }
+  std::cout<<"message_wrapper--StartPositionX: "<<_startPosX<<std::endl;
+
+  if(!n.getParam("StartPositionY",_startPosY))
+  {
+    std::cout<<"message_wrapper--StartPositionY No Configure"<<std::endl;
+  }
+  std::cout<<"message_wrapper--StartPositionY: "<<_startPosY<<std::endl;
+
+  if(!n.getParam("StartPositionZ",_startPosZ))
+  {
+    std::cout<<"message_wrapper--StartPositionZ No Configure"<<std::endl;
+  }
+  std::cout<<"message_wrapper--StartPositionZ: "<<_startPosZ<<std::endl;
+
+  std::string TargetObjPosMsgPubTopic = "/target_object/pose";
+  if(!n.getParam("TargetObjPosMsgPubTopic",TargetObjPosMsgPubTopic))
+  {
+    std::cout<<"message_wrapper--TargetObjPosMsgPubTopic No Configure"<<std::endl;
+  }
+  std::cout<<"message_wrapper--TargetObjPosMsgPubTopic: "<<TargetObjPosMsgPubTopic<<std::endl;
+
 
   _cloud_msg_pub= n.advertise<dt_message_package::CloudMessage>(CloudMsgPubTopic,20);
   _target_pos_pub = n.advertise<geometry_msgs::PoseStamped>(TargetPosPubTopic,10);
@@ -184,6 +209,8 @@ dt_message_wrapper::dt_message_wrapper()
   _apply_cam_pub = n.advertise<std_msgs::Bool>(ApplyCamPubTopic,10);
   _other_uavs_state_pub = n.advertise<dt_message_package::uavs_pose_vel>(OtherUavStateMsgPubTopic,50);
   _network_state_pub = n.advertise<dt_message_package::NetworkStateMsg>(NetworkStateMsgPubTopic,10);
+
+  _target_obj_pos_pub = n.advertise<geometry_msgs::PoseStamped>(TargetObjPosMsgPubTopic,10);
 
   _otherUavsState.resize(_uavNum);
   _isLinkUavs.resize(_uavNum);
@@ -254,6 +281,25 @@ void *dt_message_wrapper::run(void *args)
   UavInfo info;
   while(ros::ok())
   {
+    if(dtvrPtr->_uavNum==1)
+    {
+      dt_message_package::uavs_pose_vel uavsPosVelMsg;
+      uavsPosVelMsg.header.frame_id = "UAV";
+      uavsPosVelMsg.header.stamp = ros::Time::now();
+      geometry_msgs::Point pos;
+      geometry_msgs::Vector3 vel;
+      uavsPosVelMsg.uav_id.push_back(dtvrPtr->_sourceID);
+      pos.x = dtvrPtr->_curPosX;
+      pos.y = dtvrPtr->_curPosY;
+      pos.z = dtvrPtr->_curPosZ;
+      vel.x = dtvrPtr->_lVelX;
+      vel.y = dtvrPtr->_lVelY;
+      vel.z = dtvrPtr->_lVelZ;
+      uavsPosVelMsg.position.push_back(pos);
+      uavsPosVelMsg.velocity.push_back(vel);
+      dtvrPtr->_other_uavs_state_pub.publish(uavsPosVelMsg);
+    }
+
     pubMsg.TimeStamp = ros::Time::now().toNSec();
     {
       std::lock_guard<mutex> guard(dtvrPtr->m);
@@ -296,13 +342,17 @@ void dt_message_wrapper::vel_info_sub_cb(const geometry_msgs::TwistStampedConstP
 
 void dt_message_wrapper::local_pos_sub_cb(const geometry_msgs::PoseStampedConstPtr& msg)
 {
-  _lposX = msg.get()->pose.position.x;
-  _lposY = msg.get()->pose.position.y;
-  _lposZ = msg.get()->pose.position.z;
+  _lposX = msg.get()->pose.position.x + _startPosX;
+  _lposY = msg.get()->pose.position.y + _startPosY;
+  _lposZ = msg.get()->pose.position.z + _startPosZ;
   _rotX = msg.get()->pose.orientation.x;
   _rotY = msg.get()->pose.orientation.y;
   _rotZ = msg.get()->pose.orientation.z;
   _rotW = msg.get()->pose.orientation.w;
+
+  _curPosX = _lposX;
+  _curPosY = _lposY;
+  _curPosZ = _lposZ;
 }
 
 void dt_message_wrapper::global_pos_sub_cb(const sensor_msgs::NavSatFixConstPtr& msg)
@@ -514,6 +564,14 @@ void dt_message_wrapper::cloud_msg_cb(const dt_message_package::CloudMessageCons
     break;
   case UavInfoID:
   {
+    int ownInDex = _sourceID-1;
+    _otherUavsState.at(ownInDex).id = _sourceID;
+    _otherUavsState.at(ownInDex).pos_x = _curPosX;
+    _otherUavsState.at(ownInDex).pos_y = _curPosY;
+    _otherUavsState.at(ownInDex).pos_z = _curPosZ;
+    _otherUavsState.at(ownInDex).vel_x = _lVelX;
+    _otherUavsState.at(ownInDex).vel_y = _lVelY;
+    _otherUavsState.at(ownInDex).vel_z = _lVelZ;
     UavInfo uavInfoMsg;
     bool isLoad = x2struct::X::loadjson(msg.get()->MessageData,uavInfoMsg,false);
     if(isLoad)
@@ -611,6 +669,26 @@ void dt_message_wrapper::cloud_msg_cb(const dt_message_package::CloudMessageCons
     break;
   case HeartMsgID:
   {
+  }
+    break;
+  case TargetObjectPoseMessageID:
+  {
+    TargetObjPoseMessage poseMsg;
+    bool isLoad = x2struct::X::loadjson(msg.get()->MessageData,poseMsg,false);
+    if(isLoad)
+    {
+     geometry_msgs::PoseStamped objPosMsg;
+     objPosMsg.header.frame_id = "target_object";
+     objPosMsg.header.stamp = ros::Time::now();
+     objPosMsg.pose.position.x = poseMsg.posX;
+     objPosMsg.pose.position.y = poseMsg.posY;
+     objPosMsg.pose.position.z = poseMsg.posZ;
+     objPosMsg.pose.orientation.x = poseMsg.rotX;
+     objPosMsg.pose.orientation.y = poseMsg.rotY;
+     objPosMsg.pose.orientation.z = poseMsg.rotZ;
+     objPosMsg.pose.orientation.w = poseMsg.rotW;
+     _target_obj_pos_pub.publish(objPosMsg);
+    }
   }
     break;
   default:
