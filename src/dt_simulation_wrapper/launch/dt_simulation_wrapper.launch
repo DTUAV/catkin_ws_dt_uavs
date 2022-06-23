@@ -13,6 +13,9 @@
       <param name="UAV6LocalPositionMessageSubTopic" value="/UAV6/mavros/local_position/pose"/>
       <param name="UAV6LocalVelocityMessageSubTopic" value="/UAV6/mavros/local_position/velocity"/>
 
+      <param name="UAVsPosVelMessagePubTopic" value="/other_uavs/state"/>
+      <param name="MessagePubFrequency" value="30"/>
+
 
 </node>
 </launch>

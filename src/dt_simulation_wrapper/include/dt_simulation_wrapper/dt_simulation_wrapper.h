@@ -4,7 +4,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <dt_message_package/uavs_pose_vel.h>
-#include <unordered_set>
+#include "pthread.h"
 
 class dt_simulation_wrapper
 {
@@ -59,6 +59,9 @@ private:
   geometry_msgs::TwistStamped _uav4_vel;
   geometry_msgs::TwistStamped _uav5_vel;
   geometry_msgs::TwistStamped _uav6_vel;
+
+  pthread_t _runThread;
+  float _msgPubHz;
 
 };
 

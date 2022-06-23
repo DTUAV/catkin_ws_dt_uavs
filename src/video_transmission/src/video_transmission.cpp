@@ -19,6 +19,7 @@ CameraManager::CameraManager(ros::NodeHandle nh,std::string name,int hz,std::str
   string video_cloud_topic_name= "/to_cloud";
   string camera_compressed_name = "/camera/compressed";
   string apply_cam_name = "/apply/camera";
+  string save_cam_name = "/save/image";
   ros::param::get("~/msg_to_cloud_name",video_cloud_topic_name);
   ros::param::get("~/camera_topic_name",camera_topic_name);
   ros::param::get("~/camera_compressed_name",camera_compressed_name);
@@ -26,16 +27,24 @@ CameraManager::CameraManager(ros::NodeHandle nh,std::string name,int hz,std::str
   ros::param::get("~/cloud_msg_source_id",cloud_msg_source_id);
   ros::param::get("~/camera_to_cloud_hz", camera_to_cloud_hz);
   ros::param::get("~/apply_cam_sub_name",apply_cam_name);
+  ros::param::get("~/save_cam_sub_name",save_cam_name);
   send_time_s = 1.0/camera_to_cloud_hz;
   video_cloud_pub = nh_private.advertise<dt_message_package::CloudMessage>(video_cloud_topic_name,5);
   compressed_image_sub = nh_private.subscribe(camera_compressed_name,2,&CameraManager::compressedImageSub,this);
   apply_cam_sub = nh_private.subscribe(apply_cam_name,1,&CameraManager::applyCamSub,this);
   image_pub = nh_.advertise(camera_topic_name,5);
+  save_image_srv =nh_private.advertiseService(save_cam_name,&CameraManager::saveImageServerCb,this);
   struct timeval tv;
   gettimeofday(&tv, NULL);
   last_send_time = tv.tv_sec;
   is_send = false;
+  is_save = false;
+}
 
+bool CameraManager::saveImageServerCb(dt_message_package::save_image::Request &req, dt_message_package::save_image::Response &res)
+{
+   is_save = req.command;
+   res.is_finish = true;
 }
 
 void CameraManager::applyCamSub(const std_msgs::BoolConstPtr &msg)
@@ -95,12 +104,14 @@ cv::Mat* CameraManager::read_image(bool save)
   }
   return &RGB_;
 }
+
+
 void CameraManager::spin(bool ros_send ,bool save,bool visualization)
 {    
   sensor_msgs::ImagePtr msg;
   while(ros::ok())
   {
-    cv::Mat* imagePtr = read_image(save);
+    cv::Mat* imagePtr = read_image(is_save);
     if(visualization) imshow("image_gray",*imagePtr);
     if(imagePtr&&ros_send)
     {

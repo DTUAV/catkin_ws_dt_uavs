@@ -66,6 +66,7 @@ private:
 
   bool _is_change;
 
+
 };
 
 #endif // PX4_GET_DATA_SET_WRAPPER_H

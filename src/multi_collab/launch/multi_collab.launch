@@ -8,7 +8,7 @@
     <arg name="height" 	  default="2.0"/>	<!-- 定高飞行 -->
     <arg name="p_h" 	  default="0.2"/>	<!-- 高度p控制 -->
     <arg name="y_finish"  default="25.0"/>	<!-- 任务区停止位置 -->
-    <arg name="dy_finish" default="2.5.0"/>	<!-- 任务区停止位置增量 -->
+    <arg name="dy_finish" default="2.5"/>	<!-- 任务区停止位置增量 -->
 
     <arg name="flag_align" default="0"/>	<!-- 0为速度平均，1为速度差修正 -->
     <arg name="v_flock"    default="1.0"/>	<!-- 维持速度大小 -->

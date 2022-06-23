@@ -4,13 +4,13 @@
       <param name="SourceID" value="11"/>
       <param name="TargetID" value="-1"/> <!--(-1): publish to everyone-->
       <param name="DtObjectID" value="-1"/>
-      <param name="CloudMessagePubTopic" value="/R_UAV_0/Message_to_Cloud"/>
-      <param name="LocalPositionMessageSubTopic" value="/mavros/local_position/pose"/>
+      <param name="CloudMessagePubTopic" value="/TargetObj/Message_to_Cloud"/>
+      <param name="LocalPositionMessageSubTopic" value="/TargetObj/mavros/local_position/pose"/>
       <param name="MessagePubFrequency" value="10"/>
 
                                          <!--unpacking-->
-      <param name="CloudMessageSubTopic" value="/R_UAV_0/Message_from_Cloud"/>
-      <param name="TargetVelocityMessagePubTopic" value="/R_UAV_0/Target/Velocity"/>
+      <param name="CloudMessageSubTopic" value="/TargetObj/Message_from_Cloud"/>
+      <param name="TargetVelocityMessagePubTopic" value="/TargetObj/Target/Velocity"/>
 
       <param name="StartPositionX" value="1"/>
       <param name="StartPositionY" value="1"/>

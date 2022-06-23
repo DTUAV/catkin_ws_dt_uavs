@@ -40,6 +40,7 @@
       <param name="ComputerCmdMessagePubTopic" value="/$(arg device_name_rostopic_init)/Computer/Cmd"/>
       <param name="ApplyCameraMessagePubTopic" value="/$(arg device_name_rostopic_init)/Apply/Camera"/>
       <param name="OtherUavStateMsgPubTopic" value="/$(arg device_name_rostopic_init)/OtherUavs/State"/>        <!--All UAVs state-->
+      <param name="NetworkStateMsgPubTopic" value="/$(arg device_name_rostopic_init)/Network/State"/>
       <param name="UavNum" value="6"/>                                                                        <!--The number of UAV-->
       <param name="IsAllUpdate" value="true"/>                                                                <!--Is update message if only one UAV information can be obtained-->
 
@@ -58,9 +59,12 @@
       <param name="px4_set_mode_client_topic" value="/mavros/set_mode"/>                                   <!--The mode setting to PX4-->
       <param name="run_frequen_hz" value="20.0"/>                                                          <!--The Frequen of Target Velocity Message To PX4-->
       <param name="rc_start_ch" value="5"/>                                                                <!--The RC Channel of Start Vehicle-->
-      <param name="rc_land_ch" value="6"/>                                                                 <!--The RC Channel of Land Vehicle-->
+      <param name="rc_save_image_ch" value="6"/>
+      <param name="cmd_reset_time" value="1.0"/> <!--1.0s-->
+      <param name="save_image_rquest_topic" value="/UAV2/Save/Image"/>
       <param name="local_position_pub_topic" value="/$(arg device_name_rostopic_init)/local_position/pose"/>
       <param name="px4_local_position_sub_topic" value="/mavros/local_position/pose"/>
+      <param name="network_data_case_pub_topic" value="/$(arg device_name_rostopic_init)/network/data/get"/>
 </node>
 <include file="$(find multi_collab)/launch/multi_collab_uav2.launch">
 </include>

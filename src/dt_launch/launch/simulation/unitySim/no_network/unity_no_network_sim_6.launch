@@ -1,0 +1,18 @@
+<launch>
+<include file="$(find dt_launch)/launch/simulation/unitySim/network_ros2unity.launch"/>
+
+<include file="$(find dt_launch)/launch/simulation/unitySim/no_network/unity_no_networksimUAV1.launch"/>
+
+<include file="$(find dt_launch)/launch/simulation/unitySim/no_network/unity_no_networksimUAV2.launch"/>
+
+<include file="$(find dt_launch)/launch/simulation/unitySim/no_network/unity_no_networksimUAV3.launch"/>
+
+<include file="$(find dt_launch)/launch/simulation/unitySim/no_network/unity_no_networksimUAV4.launch"/>
+
+<include file="$(find dt_launch)/launch/simulation/unitySim/no_network/unity_no_networksimUAV5.launch"/>
+
+<include file="$(find dt_launch)/launch/simulation/unitySim/no_network/unity_no_networksimUAV6.launch"/>
+
+<include file="$(find dt_launch)/launch/simulation/unitySim/no_network/unity_no_networksimTargetObj.launch"/>
+
+</launch>

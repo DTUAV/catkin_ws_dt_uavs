@@ -8,7 +8,8 @@
 #include"dt_message_package/uav_target.h"
 #include "multi_collab/swarm_crossing.h"
 #include "multi_collab/swarm_hunting.h"
-
+#include "std_msgs/Bool.h"
+#include "iostream"
 
 class multi_collab
 {
@@ -26,10 +27,16 @@ public:
     private_nh_.param("source_of_control_",  source_of_ctrl_, 0);
     private_nh_.param<double>("main_loop_duration_", main_loop_duration_, 0.2);
     std::string tgt_object_pos_sub_topic = "/target_obj/pose";//
-    private_nh_.param<std::string>("tgt_object_pos_sub_topic",tgt_object_pos_sub_topic);//
+    private_nh_.param<std::string>("tgt_object_pos_sub_topic",tgt_object_pos_sub_topic,"/target_obj/pose");//
     _target_obj_pos_sub = n_.subscribe(tgt_object_pos_sub_topic,1,&multi_collab::target_obj_pose_sub_cb,this);//
-\
 
+    std::string network_data_case_pub_topic = "/network/data/get";
+    private_nh_.param<std::string>("network_data_case_pub_topic",network_data_case_pub_topic,"/network/data/get");
+
+
+
+    _network_data_case_pub = n_.advertise<std_msgs::Bool>(network_data_case_pub_topic,1);
+\
 
     if (source_of_ctrl_==0)
     {
@@ -120,6 +127,10 @@ public:
   {
     _data_valid= msg;
     isGetData = true;
+   // std::cout<<"ddddd"<<std::endl;
+    std_msgs::Bool dataGetMsg;
+    dataGetMsg.data = true;
+    _network_data_case_pub.publish(dataGetMsg);
   }
 
   void game_joy_ctrl_sub_cb(const dt_message_package::uav_target &msg)
@@ -208,6 +219,8 @@ private:
   ros::Subscriber _target_obj_pos_sub;//==============The position subscriber of target object=================
   ros::Publisher _targ_vel_pub;
   ros::Publisher _targ_pose_pub;
+
+  ros::Publisher _network_data_case_pub;
 
   bool control_mode;
   bool isGetData;

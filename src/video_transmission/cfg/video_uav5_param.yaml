@@ -10,3 +10,4 @@ camera_to_cloud_hz: 1
 cloud_msg_source_id: 5
 cloud_msg_target_id: 101
 apply_cam_sub_name: /UAV5/Apply/Camera
+save_cam_sub_name: /UAV5/Save/Image
