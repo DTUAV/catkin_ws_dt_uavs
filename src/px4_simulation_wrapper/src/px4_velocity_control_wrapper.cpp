@@ -158,7 +158,7 @@ void *px4_velocity_control_wrapper::offboard_run(void *args)
 void px4_velocity_control_wrapper::px4_local_pose_sub_cb(const geometry_msgs::PoseStampedConstPtr &msg)
 {
   _local_pose = *msg;
-  if(_is_get_local_pose)
+  //if(_is_get_local_pose)
   {
     geometry_msgs::PoseStamped msgData;
     msgData.pose.orientation = msg.get()->pose.orientation;
@@ -215,8 +215,10 @@ px4_velocity_control_wrapper::px4_velocity_control_wrapper()
 
 
   std::string local_position_pub_topic = "/local_position/pose";
+  n.getParam("local_position_pub_topic",local_position_pub_topic);
   _local_pos_msg_pub = n.advertise<geometry_msgs::PoseStamped>(local_position_pub_topic,1);
   std::string px4_local_position_sub_topic = "/mavros/local_position/pose";
+  n.getParam("px4_local_position_sub_topic",px4_local_position_sub_topic);
   _px4_local_pos_msg_sub = n.subscribe(px4_local_position_sub_topic,1,&px4_velocity_control_wrapper::px4_local_pose_sub_cb,this);
 
   _tgt_vel_msg_sub = n.subscribe(_tgt_vel_msg_sub_topic,1,&px4_velocity_control_wrapper::tgt_vel_msg_sub_cb,this);

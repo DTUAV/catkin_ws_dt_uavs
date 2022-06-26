@@ -12,6 +12,10 @@
       <param name="UAV5LocalVelocityMessageSubTopic" value="/UAV5/mavros/local_position/velocity"/>
       <param name="UAV6LocalPositionMessageSubTopic" value="/UAV6/mavros/local_position/pose"/>
       <param name="UAV6LocalVelocityMessageSubTopic" value="/UAV6/mavros/local_position/velocity"/>
+      <param name="TargetLocalPositionMsgSubTopic" value="/Car1/mavros/local_position/pose"/>
+      <param name="TargetLocalVelocityMsgSubTopic" value="/Car1/mavros/local_position/velocity"/>
+
+      <param name="IsPubTarget" value="true"/>
 
       <param name="UAVsPosVelMessagePubTopic" value="/other_uavs/state"/>
       <param name="MessagePubFrequency" value="30"/>

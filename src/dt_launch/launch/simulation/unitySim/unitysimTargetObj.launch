@@ -26,6 +26,11 @@
       <param name="MessagePubFrequency" value="30"/>
 
                                          <!--unpacking-->
+      <param name="UavsPosVelSubTopic" value="/other_uavs/state"/>
+      <param name="ObjectNum" value="6"/>
+      <param name="PlotPointNum" value="100"/>
+      <param name="PlotHz" value="10"/>
+
       <param name="CloudMessageSubTopic" value="/$(arg device_name_rostopic_init)/Message_from_Cloud"/>
       <param name="TargetVelocityMessagePubTopic" value="/$(arg device_name_rostopic_init)/Target/Velocity"/>
 

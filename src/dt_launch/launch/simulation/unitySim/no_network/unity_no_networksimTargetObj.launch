@@ -23,9 +23,15 @@
       <param name="DtObjectID" value="-1"/>
       <param name="CloudMessagePubTopic" value="/$(arg device_name_rostopic_init)/Message_to_Cloud"/>
       <param name="LocalPositionMessageSubTopic" value="/$(arg device_name_rostopic_init)/mavros/local_position/pose"/>
-      <param name="MessagePubFrequency" value="30"/>
+      <param name="MessagePubFrequency" value="5"/>
 
                                          <!--unpacking-->
+
+      <!--unpacking-->
+      <param name="UavsPosVelSubTopic" value="/other_uavs/state"/>
+      <param name="ObjectNum" value="6"/>
+      <param name="PlotPointNum" value="20"/>
+      <param name="PlotHz" value="10"/>
       <param name="CloudMessageSubTopic" value="/$(arg device_name_rostopic_init)/Message_from_Cloud"/>
       <param name="TargetVelocityMessagePubTopic" value="/$(arg device_name_rostopic_init)/Target/Velocity"/>
 

@@ -29,7 +29,7 @@
 <param name="LocalVelocityMessageSubTopic" value="/$(arg device_name_rostopic_init)/mavros/local_position/velocity"/>
 <param name="UavStateMessageSubTopic" value="/$(arg device_name_rostopic_init)/mavros/state"/>
 <param name="BatteryMessageSubTopic" value="/$(arg device_name_rostopic_init)/mavros/battery"/>
-<param name="MessagePubFrequency" value="30"/>
+<param name="MessagePubFrequency" value="5"/>
 
                      <!--unpacking-->
 <param name="CloudMessageSubTopic" value="/$(arg device_name_rostopic_init)/Message_from_Cloud"/>

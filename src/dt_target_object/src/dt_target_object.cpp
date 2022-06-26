@@ -80,8 +80,37 @@ dt_target_object::dt_target_object()
   }
   std::cout<<"dt_target_object--CloudMessagePubTopic: "<<CloudMsgPubTopic<<std::endl;
 
+  std::string UavsPosVelSubTopic = "/uav1/other_uav/state";
+  if(!n.getParam("UavsPosVelSubTopic",UavsPosVelSubTopic))
+  {
+    std::cout<<"dt_target_object--UavsPosVelSubTopic No Configure"<<std::endl;
+  }
+  std::cout<<"dt_target_object--UavsPosVelSubTopic: "<<UavsPosVelSubTopic<<std::endl;
+
+  _plotPointNum = 20;
+  n.getParam("PlotPointNum",_plotPointNum);
+
+  _objectNum = 7;
+  n.getParam("ObjectNum",_objectNum);
+
+  _plotHz = 10;
+  n.getParam("PlotHz",_plotHz);
+
+  _allUavState.resize(_objectNum);
+  for(int i=0;i<_objectNum;++i){
+    _allUavState.at(i).xs.resize(_plotPointNum);
+    _allUavState.at(i).ys.resize(_plotPointNum);
+    _allUavState.at(i).zs.resize(_plotPointNum);
+  }
+  _getDataNum = 0;
+  _isPlot = false;
+
+
+
   _localPoseSub = n.subscribe(LocalPosMsgSubTopic,1,&dt_target_object::localPosSubCb,this);
   _cloudMsgSub = n.subscribe(CloudMsgSubTopic,1,&dt_target_object::cloudMsgCb,this);
+
+  _uavsPoseVelMsgSub = n.subscribe(UavsPosVelSubTopic,1,&dt_target_object::uavsPoseVelCb,this);
 
   _cloudMsgPub = n.advertise<dt_message_package::CloudMessage>(CloudMsgPubTopic,1);
   _targetVelPub = n.advertise<geometry_msgs::TwistStamped>(TargetVelPubTopic,1);
@@ -91,8 +120,66 @@ dt_target_object::dt_target_object()
     ROS_ERROR("dt_target_object--pthread_create ros_process_thread failed: %d\n", flag_thread);
   }
 
+  flag_thread = pthread_create(&_runPlotThread,NULL,&dt_target_object::runPlot,this);
+  if (flag_thread < 0) {
+    ROS_ERROR("dt_target_object--pthread_create ros_process_thread failed: %d\n", flag_thread);
+  }
 
 }
+
+void dt_target_object::uavsPoseVelCb(const dt_message_package::uavs_pose_velConstPtr &msg)
+{
+
+  if(msg.get()->position.size()==_objectNum){
+    if(_getDataNum<_plotPointNum&&!_isPlot) _getDataNum++;
+    else _isPlot = true;
+    {
+      std::lock_guard<mutex> guard(_plotHzM);
+      for(int i=0;i<msg.get()->position.size();i++){
+        _allUavState.at(i).xs.push_back(msg.get()->position.at(i).x);
+        _allUavState.at(i).ys.push_back(msg.get()->position.at(i).y);
+        _allUavState.at(i).zs.push_back(msg.get()->position.at(i).z);
+      }
+    }
+  }
+  else{
+    ROS_INFO("The number of uavs_pose_vel message != the config object num");
+  }
+
+}
+void *dt_target_object::runPlot(void *args){
+  dt_target_object* ptr = (dt_target_object*)(args);
+  ros::Rate rate(ptr->_plotHz);
+  while(ros::ok()){
+    if(ptr->_isPlot){
+      plt::clf();
+      for(int i=0;i<ptr->_allUavState.size();++i){
+        vector<float> x,y/*,z*/;
+        x.resize(ptr->_allUavState.at(i).xs.size());
+        y.resize(ptr->_allUavState.at(i).ys.size());
+        //z.resize(_allUavState.at(i).zs.size());
+        for(int j=0;j<ptr->_allUavState.at(i).xs.size();++j){
+          x.at(j) = ptr->_allUavState.at(i).xs.at(j);
+          y.at(j) = ptr->_allUavState.at(i).ys.at(j);
+          //z.at(j) = _allUavState.at(i).zs.at(j);
+        }
+        if(i==ptr->_allUavState.size()-1) plt::named_plot("Target",x,y);
+        else {
+          std::string name = "UAV"+std::to_string(i+1);
+          plt::named_plot(name,x,y);
+        }
+      }
+      plt::xlim(-50, 50);
+      // Add graph title
+      plt::title("All Object Position Figure");
+      // Enable legend.
+      plt::legend();
+      plt::pause(1.0/ptr->_plotHz);
+      //rate.sleep();
+    }
+  }
+}
+
 void *dt_target_object::run(void *args)
 {
   dt_target_object* ptr = (dt_target_object*)(args);
@@ -131,7 +218,7 @@ void dt_target_object::cloudMsgCb(const dt_message_package::CloudMessageConstPtr
     bool isLoad = x2struct::X::loadjson(msg.get()->MessageData,uavControlMsg,false);
     if(isLoad)
     {
-       if(uavControlMsg.Mode==1)
+      if(uavControlMsg.Mode==1)
       {
         //velocity mode
         geometry_msgs::TwistStamped targetVelMsg;

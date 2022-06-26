@@ -13,6 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   dt_message_package
 )
 
+
+find_package(Python2 COMPONENTS Development NumPy)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -118,6 +121,8 @@ catkin_package(
 include_directories(
  include
   ${catkin_INCLUDE_DIRS}
+  ${Python2_INCLUDE_DIRS}
+  ${Python2_NumPy_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -148,6 +153,7 @@ include_directories(
 ## Specify libraries to link a library or executable target against
  target_link_libraries(${PROJECT_NAME}_node
    ${catkin_LIBRARIES}
+   Python2::Python Python2::NumPy
  )
 
 #############

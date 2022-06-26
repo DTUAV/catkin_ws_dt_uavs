@@ -2,7 +2,7 @@
 <arg name="device_name_rostopic_init" default="UAV3"/>
 <arg name="SourceID" default="3"/>
 <node pkg="nlink_parser" type="linktrack" name="$(arg device_name_rostopic_init)_uwb" output="screen">
-    <param name="port_name" value="/dev/ttyUSB0" />
+    <param name="port_name" value="/dev/uwb" />
     <param name="baud_rate" value="921600" />
     <param name="SendDataMsgTopic" value="/$(arg device_name_rostopic_init)/msg_to_other"/>
     <param name="UwbInforMsgTopic" value="/$(arg device_name_rostopic_init)/information"/>
@@ -13,7 +13,7 @@
 <param name="UwbMsgSubTopic" value="/$(arg device_name_rostopic_init)/msg_from_other"/>
 <param name="UwbMsgPubTopic" value="/$(arg device_name_rostopic_init)/msg_to_other"/>
 <param name="UavLocalPosSubTopic" value="/$(arg device_name_rostopic_init)/mavros/local_position/pose"/>
-<param name="UavVelSubTopic" value="/mavros/local_position/velocity"/>
+<param name="UavVelSubTopic" value="/mavros/local_position/velocity_local"/>
 <param name="UavNum" value="6"/>
 <param name="UavId" value="3"/>
 <param name="MsgToOtherHz" value="30"/>
@@ -37,7 +37,7 @@
       <param name="rc_save_image_ch" value="6"/>
       <param name="cmd_reset_time" value="1.0"/> <!--1.0s-->
       <param name="save_image_rquest_topic" value="/UAV3/Save/Image"/>
-      <param name="local_position_pub_topic" value="/$(arg device_name_rostopic_init)/local_position/pose"/>
+      <param name="local_position_pub_topic" value="/$(arg device_name_rostopic_init)/mavros/local_position/pose"/>
       <param name="px4_local_position_sub_topic" value="/mavros/local_position/pose"/>
       <param name="network_data_case_pub_topic" value="/$(arg device_name_rostopic_init)/network/data/get"/>
 </node>

@@ -11,6 +11,8 @@
 #include "dt_message_package/uavs_pose_vel.h"
 #include "std_msgs/String.h"
 #include "uwb_common/uwb_common.h"
+#include <sstream>
+#include "string"
 using namespace std;
 
 typedef struct{
@@ -44,7 +46,11 @@ private:
 
   bool IsJsonData(string data);
   string CheckRecvData(string msg);
+  std::pair<PosVelStu,bool> getRecvData(string msg);
+  string packData(PosVelStu data);
+  std::pair<PosVelStu,bool> unpackData(string msg);
 
+  bool _isCar;
 
   std::vector<PosVelStu> _posVels;
 

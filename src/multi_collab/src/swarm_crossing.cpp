@@ -580,7 +580,7 @@ geometry_msgs::Vector3 swarm_crossing::model::generateDesiredVelocity(int id ,co
                     ind_min_left_target = i;
                     delta_ind_left_to_target = angle_number_half - temp;
                 }
-                else if (abs(V[i] - val_left_min) < 0.00001)
+                else if (fabs(V[i] - val_left_min) < 0.00001)
                 {
                     int temp1 = angle_number_half - temp;
                     if (temp1 < delta_ind_left_to_target)
@@ -600,7 +600,7 @@ geometry_msgs::Vector3 swarm_crossing::model::generateDesiredVelocity(int id ,co
                     ind_min_right_target = i;
                     delta_ind_right_to_target = temp - angle_number_half;
                 }
-                else if (abs(V[i] - val_right_min) < 0.00001)
+                else if (fabs(V[i] - val_right_min) < 0.00001)
                 {
                     int temp1 = temp - angle_number_half;
                     if (temp1 < delta_ind_right_to_target)
@@ -612,10 +612,10 @@ geometry_msgs::Vector3 swarm_crossing::model::generateDesiredVelocity(int id ,co
                 }  
             }
         }
-        if (abs(val_left_min - val_right_min) < 0.01)
+        if (fabs(val_left_min - val_right_min) < 0.01)
         {
-            int delta_left = abs(ind_min_left_target - ind_heading);
-            int delta_right = abs(ind_min_right_target - ind_heading);
+            int delta_left = fabs(ind_min_left_target - ind_heading);
+            int delta_right = fabs(ind_min_right_target - ind_heading);
             delta_left = (delta_left > angle_number_half)?(this->myMap.num_ranges - delta_left):delta_left;
             delta_right = (delta_right > angle_number_half)?(this->myMap.num_ranges - delta_right):delta_right;
             ind_min_target = (delta_left < delta_right)? ind_min_left_target:ind_min_right_target;

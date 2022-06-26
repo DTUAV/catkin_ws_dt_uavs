@@ -31,6 +31,11 @@ dt_simulation_wrapper::dt_simulation_wrapper()
   std::string UAV6VelSubTopic = "/UAV6/mavros/local_position/velocity";
   n.getParam("UAV6LocalVelocityMessageSubTopic",UAV6VelSubTopic);
 
+  std::string TargetPosSubTopic = "/target/mavros/local_position/velocity";
+  n.getParam("TargetLocalPositionMsgSubTopic",TargetPosSubTopic);
+  std::string TargetVelSubTopic = "/target/mavros/local_position/velocity";
+  n.getParam("TargetLocalVelocityMsgSubTopic",TargetVelSubTopic);
+
   std::string UAVsPosVelPubTopic = "/other_uavs/state";
   n.getParam("UAVsPosVelMessagePubTopic",UAVsPosVelPubTopic);
 
@@ -39,12 +44,18 @@ dt_simulation_wrapper::dt_simulation_wrapper()
     _msgPubHz = 10;
   }
 
+  _isPubTarget = false;
+  n.getParam("IsPubTarget",_isPubTarget);
+
+
+
   _uav1_pose_sub = n.subscribe(UAV1PosSubTopic,5,&dt_simulation_wrapper::uav1_local_pos_sub_cb,this);
   _uav2_pose_sub = n.subscribe(UAV2PosSubTopic,5,&dt_simulation_wrapper::uav2_local_pos_sub_cb,this);
   _uav3_pose_sub = n.subscribe(UAV3PosSubTopic,5,&dt_simulation_wrapper::uav3_local_pos_sub_cb,this);
   _uav4_pose_sub = n.subscribe(UAV4PosSubTopic,5,&dt_simulation_wrapper::uav4_local_pos_sub_cb,this);
   _uav5_pose_sub = n.subscribe(UAV5PosSubTopic,5,&dt_simulation_wrapper::uav5_local_pos_sub_cb,this);
   _uav6_pose_sub = n.subscribe(UAV6PosSubTopic,5,&dt_simulation_wrapper::uav6_local_pos_sub_cb,this);
+  _target_pose_sub = n.subscribe(TargetPosSubTopic,5,&dt_simulation_wrapper::target_local_pos_sub_cb,this);
 
   _uav1_vel_sub = n.subscribe(UAV1VelSubTopic,5,&dt_simulation_wrapper::uav1_vel_info_sub_cb,this);
   _uav2_vel_sub = n.subscribe(UAV2VelSubTopic,5,&dt_simulation_wrapper::uav2_vel_info_sub_cb,this);
@@ -52,6 +63,7 @@ dt_simulation_wrapper::dt_simulation_wrapper()
   _uav4_vel_sub = n.subscribe(UAV4VelSubTopic,5,&dt_simulation_wrapper::uav4_vel_info_sub_cb,this);
   _uav5_vel_sub = n.subscribe(UAV5VelSubTopic,5,&dt_simulation_wrapper::uav5_vel_info_sub_cb,this);
   _uav6_vel_sub = n.subscribe(UAV6VelSubTopic,5,&dt_simulation_wrapper::uav6_vel_info_sub_cb,this);
+  _target_vel_sub = n.subscribe(TargetVelSubTopic,5,&dt_simulation_wrapper::target_vel_info_sub_cb,this);
 
   _uavs_pos_vel_pub = n.advertise<dt_message_package::uavs_pose_vel>(UAVsPosVelPubTopic,10);
 
@@ -70,7 +82,7 @@ void *dt_simulation_wrapper::run(void *args)
   ros::Rate rate(ptr->_msgPubHz);
   dt_message_package::uavs_pose_vel pubMsg;
   pubMsg.position.resize(6);
-  pubMsg.uav_id = {1,2,3,4,5,6};
+  pubMsg.uav_id = {0,1,2,3,4,5};
   pubMsg.velocity.resize(6);
   while(ros::ok())
   {

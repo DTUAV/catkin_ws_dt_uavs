@@ -29,6 +29,9 @@ public:
   void uav6_local_pos_sub_cb(const geometry_msgs::PoseStampedConstPtr& msg);
   void uav6_vel_info_sub_cb(const geometry_msgs::TwistStampedConstPtr& msg);
 
+  void target_local_pos_sub_cb(const geometry_msgs::PoseStampedConstPtr& msg);
+  void target_vel_info_sub_cb(const geometry_msgs::TwistStampedConstPtr& msg);
+
 private:
   ros::Subscriber _uav1_pose_sub;
   ros::Subscriber _uav2_pose_sub;
@@ -36,6 +39,7 @@ private:
   ros::Subscriber _uav4_pose_sub;
   ros::Subscriber _uav5_pose_sub;
   ros::Subscriber _uav6_pose_sub;
+  ros::Subscriber _target_pose_sub;
 
   ros::Subscriber _uav1_vel_sub;
   ros::Subscriber _uav2_vel_sub;
@@ -43,6 +47,7 @@ private:
   ros::Subscriber _uav4_vel_sub;
   ros::Subscriber _uav5_vel_sub;
   ros::Subscriber _uav6_vel_sub;
+  ros::Subscriber _target_vel_sub;
 
   ros::Publisher _uavs_pos_vel_pub;
 
@@ -52,6 +57,7 @@ private:
   geometry_msgs::PoseStamped _uav4_pose;
   geometry_msgs::PoseStamped _uav5_pose;
   geometry_msgs::PoseStamped _uav6_pose;
+  geometry_msgs::PoseStamped _target_pose;
 
   geometry_msgs::TwistStamped _uav1_vel;
   geometry_msgs::TwistStamped _uav2_vel;
@@ -59,9 +65,12 @@ private:
   geometry_msgs::TwistStamped _uav4_vel;
   geometry_msgs::TwistStamped _uav5_vel;
   geometry_msgs::TwistStamped _uav6_vel;
+  geometry_msgs::TwistStamped _target_vel;
 
   pthread_t _runThread;
   float _msgPubHz;
+
+  bool _isPubTarget;
 
 };
 

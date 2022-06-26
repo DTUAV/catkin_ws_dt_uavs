@@ -6,6 +6,7 @@
     <param name="UavVelSubTopic" value="/uav1/mavros/local_position/velocity"/>
     <param name="UavNum" value="6"/>
     <param name="UavId" value="1"/>
+    <param name="IsCar" value="true"/>
     <param name="MsgToOtherHz" value="30"/>
     <param name="UavsPosVelPubHz" value="30"/>
     <param name="UavsPosVelPubTopic" value="/uav1/other_uav/state"/>
